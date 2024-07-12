@@ -1,8 +1,8 @@
-import { Controller, ParseIntPipe } from '@nestjs/common';
+import { Controller, HttpStatus, ParseIntPipe } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { OrdersService } from './orders.service';
-import { CreateOrderDto } from './dto/create-order.dto';
-import { UpdateOrderDto } from './dto/update-order.dto';
+import { CreateOrderDto, UpdateOrderDto } from './dto';
+import { ResponseDto } from 'src/common';
 
 @Controller()
 export class OrdersController {
@@ -10,26 +10,29 @@ export class OrdersController {
 
   @MessagePattern('createOrder')
   create(@Payload() createOrderDto: CreateOrderDto) {
-    return this.ordersService.create(createOrderDto);
+    const payload = this.ordersService.create(createOrderDto);
+
+    return new ResponseDto(HttpStatus.CREATED, 'Created', payload);
   }
 
   @MessagePattern('findAllOrders')
   findAll() {
-    return this.ordersService.findAll();
+    const payload = this.ordersService.findAll();
+
+    return new ResponseDto(HttpStatus.OK, 'Success', payload);
   }
 
   @MessagePattern('findOneOrder')
   findOne(@Payload('id', ParseIntPipe) id: number) {
-    return this.ordersService.findOne(id);
+    const payload = this.ordersService.findOne(id);
+
+    return new ResponseDto(HttpStatus.OK, 'Success', payload);
   }
 
-  @MessagePattern('updateOrder')
-  update(@Payload() updateOrderDto: UpdateOrderDto) {
-    return this.ordersService.update(updateOrderDto.id, updateOrderDto);
-  }
+  @MessagePattern('changeOrderStatus')
+  changeOrderStatus(@Payload() updateOrderDto: UpdateOrderDto) {
+    const payload = this.ordersService.changeOrderStatus(updateOrderDto);
 
-  @MessagePattern('removeOrder')
-  remove(@Payload('id', ParseIntPipe) id: number) {
-    return this.ordersService.remove(id);
+    return new ResponseDto(HttpStatus.OK, 'Order status changed', payload);
   }
 }
