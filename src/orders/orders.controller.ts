@@ -10,7 +10,7 @@ export class OrdersController {
 
   @MessagePattern('createOrder')
   create(@Payload() createOrderDto: CreateOrderDto) {
-    const payload = this.ordersService.create(createOrderDto);
+    const payload = this.ordersService.create();
 
     return new ResponseDto(HttpStatus.CREATED, 'Created', payload);
   }
@@ -30,8 +30,8 @@ export class OrdersController {
   }
 
   @MessagePattern('changeOrderStatus')
-  changeOrderStatus(@Payload() updateOrderDto: UpdateOrderDto) {
-    const payload = this.ordersService.changeOrderStatus(updateOrderDto);
+  changeStatus(@Payload() updateOrderDto: UpdateOrderDto) {
+    const payload = this.ordersService.changeStatus();
 
     return new ResponseDto(HttpStatus.OK, 'Order status changed', payload);
   }

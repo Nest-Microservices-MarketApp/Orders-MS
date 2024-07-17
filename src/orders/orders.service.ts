@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { CreateOrderDto, UpdateOrderDto } from './dto';
+// import { CreateOrderDto, UpdateOrderDto } from './dto';
 
 @Injectable()
 export class OrdersService {
-  create(createOrderDto: CreateOrderDto) {
+  create() {
     return 'This action adds a new order';
   }
 
@@ -15,7 +15,7 @@ export class OrdersService {
     return `This action returns a #${id} order`;
   }
 
-  changeOrderStatus(updateOrderDto: UpdateOrderDto) {
+  changeStatus() {
     throw new Error('Method not implemented.');
   }
 }
