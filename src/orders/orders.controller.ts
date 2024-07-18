@@ -10,7 +10,7 @@ export class OrdersController {
 
   @MessagePattern('createOrder')
   create(@Payload() createOrderDto: CreateOrderDto) {
-    const payload = this.ordersService.create();
+    const payload = this.ordersService.create(createOrderDto);
 
     return new ResponseDto(HttpStatus.CREATED, 'Created', payload);
   }

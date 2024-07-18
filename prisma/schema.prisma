@@ -21,12 +21,14 @@ enum OrderStatus {
 
 model Order {
   id          String      @id @default(cuid()) // Using CUID as the id, is a  more modern approach to generating unique identifiers, designed to be more collision-resistant than UUIDs. CUIDs are shorter, making them more efficient to use in databases and easier to handle in URLs.
-  totalAmount Float
+  totalAmount Decimal     @default(0) @db.Decimal(10, 2)
   totalItems  Int
   //items       OrderItem[]
-  status      OrderStatus
+  status      OrderStatus @default(PENDING)
   paid        Boolean     @default(false)
   paidAt      DateTime?
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
+
+  @@index([status])
 }
