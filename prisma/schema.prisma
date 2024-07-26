@@ -20,7 +20,7 @@ enum OrderStatus {
 }
 
 model Order {
-  id          String      @id @default(cuid()) // Using CUID as the id, is a  more modern approach to generating unique identifiers, designed to be more collision-resistant than UUIDs. CUIDs are shorter, making them more efficient to use in databases and easier to handle in URLs.
+  id          String      @id @default(uuid())
   totalAmount Decimal     @default(0) @db.Decimal(10, 2)
   totalItems  Int
   //items       OrderItem[]

@@ -1,6 +1,11 @@
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { HttpStatus, Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { RpcException } from '@nestjs/microservices';
 import { PrismaClient } from '@prisma/client';
-import { CreateOrderDto, UpdateOrderDto } from './dto';
+import {
+  ChangeOrderStatusDto,
+  CreateOrderDto,
+  OrderPaginationDto,
+} from './dto';
 
 @Injectable()
 export class OrdersService extends PrismaClient implements OnModuleInit {
@@ -11,19 +16,105 @@ export class OrdersService extends PrismaClient implements OnModuleInit {
     this.logger.log('Connected to the database');
   }
 
-  create(createOrderDto) {
-    return 'This action adds a new order';
+  async create(createOrderDto: CreateOrderDto) {
+    try {
+      const order = await this.order.create({
+        data: createOrderDto,
+      });
+
+      return order;
+    } catch (err) {
+      this.logger.error(err.message);
+      throw new RpcException({
+        status: HttpStatus.BAD_REQUEST,
+        message: `${err.message}`,
+      });
+    }
   }
 
-  findAll() {
-    return `This action returns all orders`;
+  async findAll(orderPaginationDto: OrderPaginationDto) {
+    const { status, page, limit } = orderPaginationDto;
+
+    try {
+      const totalRecords = await this.order.count({
+        where: { status },
+      });
+
+      const totalPages = Math.ceil(totalRecords / limit);
+      const currentPage = Math.min(page, totalPages);
+
+      const orders = await this.order.findMany({
+        where: { status },
+        skip: (currentPage - 1) * limit,
+        take: limit,
+      });
+
+      return {
+        data: orders,
+        meta: {
+          totalRecords,
+          totalPages,
+          currentPage,
+          perPage: limit,
+        },
+      };
+    } catch (err) {
+      this.logger.error(err.message);
+      throw new RpcException({
+        status: HttpStatus.BAD_REQUEST,
+        message: `${err.message}`,
+      });
+    }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} order`;
+  async findOne(id: string) {
+    try {
+      const order = await this.order.findFirst({
+        where: { id },
+      });
+
+      if (!order) {
+        throw new RpcException({
+          status: HttpStatus.NOT_FOUND,
+          message: `Order with id ${id} not found`,
+        });
+      }
+
+      return order;
+    } catch (err) {
+      this.logger.error(err.message);
+      throw new RpcException({
+        status: HttpStatus.BAD_REQUEST,
+        message: `${err.message}`,
+      });
+    }
   }
 
-  changeStatus() {
-    return 'This action changes the status of an order';
+  async changeStatus(changeOrderStatusDto: ChangeOrderStatusDto) {
+    const { id, status } = changeOrderStatusDto;
+
+    try {
+      const order = await this.findOne(id);
+
+      if (order.status === status) {
+        throw new RpcException({
+          status: HttpStatus.BAD_REQUEST,
+          message: `Order is already in ${status} status`,
+        });
+      }
+
+      const updatedOrder = await this.order.update({
+        where: { id },
+        data: { status },
+      });
+
+      return updatedOrder;
+    } catch (err) {
+      this.logger.error(err.message);
+      throw new RpcException({
+        status: HttpStatus.BAD_REQUEST,
+        message: `${err.message}`,
+      });
+    }
   }
 }
