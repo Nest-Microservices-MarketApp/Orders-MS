@@ -23,7 +23,7 @@ model Order {
   id          String      @id @default(uuid())
   totalAmount Decimal     @default(0) @db.Decimal(10, 2)
   totalItems  Int
-  //items       OrderItem[]
+  OrderItem   OrderItem[]
   status      OrderStatus @default(PENDING)
   paid        Boolean     @default(false)
   paidAt      DateTime?
@@ -31,4 +31,19 @@ model Order {
   updatedAt   DateTime    @updatedAt
 
   @@index([status])
+}
+
+model OrderItem {
+  id        String   @id @default(uuid())
+  orderId   String?
+  Order     Order?   @relation(fields: [orderId], references: [id])
+  productId Int
+  //product   Product  @relation(fields: [productId], references: [id])
+  quantity  Int
+  price     Decimal  @db.Decimal(10, 2)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([orderId])
+  @@index([productId])
 }
