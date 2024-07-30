@@ -35,5 +35,13 @@ Create a `.env` file in the root of the project. You can refer to the included `
 To run the application using Docker Compose, run the following command:
 
 ```bash
-docker-compose up
+docker compose up -d
+```
+
+### Start the Application
+
+To start the application, run:
+
+```bash
+npm run start:dev
 ```
