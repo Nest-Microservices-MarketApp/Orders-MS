@@ -101,7 +101,7 @@ export class OrdersService extends PrismaClient implements OnModuleInit {
       });
 
       const totalPages = Math.ceil(totalRecords / limit);
-      const currentPage = Math.min(page, totalPages);
+      const currentPage = Math.max(1, Math.min(page, totalPages));
 
       const orders = await this.order.findMany({
         where: { status },
